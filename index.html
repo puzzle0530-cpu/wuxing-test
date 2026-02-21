@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>你的八字天选城市是哪座？</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* 星星背景装饰 */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #ffd700;
+            border-radius: 50%;
+            animation: twinkle 2s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        /* 标题样式 */
+        .title {
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        /* 卡片样式 */
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 15px;
+        }
+
+        /* 输入框样式 */
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-label {
+            font-size: 14px;
+            color: #ffd700;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+        }
+
+        input[type="text"]:focus,
+        select:focus {
+            border-color: #ffd700;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* 按钮样式 */
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ffd700 0%, #ff9500 100%);
+            color: #1a1a2e;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffd700;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 215, 0, 0.1);
+        }
+
+        /* 题目样式 */
+        .question-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .question-number {
+            color: #ffd700;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option {
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .option:hover {
+            background: rgba(255, 215, 0, 0.2);
+            border-color: #ffd700;
+        }
+
+        .option.selected {
+            background: rgba(255, 215, 0, 0.3);
+            border-color: #ffd700;
+            color: #ffd700;
+        }
+
+        /* 进度条 */
+        .progress {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #ffd700, #ff9500);
+            transition: width 0.3s;
+        }
+
+        /* 结果页面 */
+        .result-section {
+            margin-bottom: 20px;
+        }
+
+        .result-title {
+            color: #ffd700;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: #ffd700;
+            border-radius: 2px;
+        }
+
+        .result-content {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            line-height: 1.6;
+        }
+
+        .wuxing-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            background: linear-gradient(135deg, #ffd700, #ff9500);
+            color: #1a1a2e;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .city-highlight {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffd700;
+            margin: 10px 0;
+        }
+
+        /* 加载动画 */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 215, 0, 0.3);
+            border-top-color: #ffd700;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: #ffd700;
+            font-size: 16px;
+        }
+
+        /* 隐藏和显示 */
+        .hidden {
+            display: none !important;
+        }
+
+        /* 提示信息 */
+        .hint {
+            font-size: 12px;
+            color: #888;
+            margin-top: 8px;
+        }
+
+        /* 成功提示 */
+        .success-message {
+            text-align: center;
+            padding: 20px;
+            color: #4ade80;
+        }
+
+        .success-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 星星背景 -->
+    <div class="stars" id="stars"></div>
+
+    <div class="container">
+        <!-- 首页：验证码和生日选择 -->
+        <div id="page-home">
+            <h1 class="title">你的八字里藏着什么秘密？</h1>
+            <p class="subtitle">输入出生时间，解锁你的命盘解读<br>找到你的天选城市</p>
+
+            <div class="card">
+                <div class="card-title">🔐 授权验证码</div>
+                <div class="input-group">
+                    <label class="input-label">验证码</label>
+                    <input type="text" id="authCode" placeholder="请输入4位验证码" maxlength="4">
+                </div>
+                <p class="hint">在小红书购买后，系统会自动发送验证码给你，请输入验证码继续</p>
+            </div>
+
+            <div class="card">
+                <div class="card-title">📅 选择出生日期</div>
+                <div class="input-group">
+                    <label class="input-label">年份</label>
+                    <select id="yearSelect"></select>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">月份</label>
+                    <select id="monthSelect"></select>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">日期</label>
+                    <select id="daySelect"></select>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="startTest()">开始测试</button>
+        </div>
+
+        <!-- 测试页面：性格测试 -->
+        <div id="page-test" class="hidden">
+            <h1 class="title">性格测试</h1>
+            
+            <div class="progress">
+                <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+            </div>
+
+            <div class="question-card">
+                <div class="question-number" id="questionNumber">问题 1/12</div>
+                <div class="question-text" id="questionText">加载中...</div>
+                <div class="options" id="optionsContainer">
+                    <!-- 选项动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 加载页面 -->
+        <div id="page-loading" class="loading">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">正在分析你的命盘...</p>
+        </div>
+
+        <!-- 结果页面 -->
+        <div id="page-result" class="hidden">
+            <h1 class="title">你的命盘解读</h1>
+            <p class="subtitle">出生日期：<span id="resultDate">-</span></p>
+
+            <div class="result-section">
+                <div class="result-title">年柱信息</div>
+                <div class="result-content">
+                    <p>年柱：<span id="nianzhu">-</span></p>
+                    <p>年干五行：<span id="niangan">-</span></p>
+                    <p>年支五行：<span id="nianzhi">-</span></p>
+                </div>
+            </div>
+
+            <div class="result-section">
+                <div class="result-title">你的本命五行</div>
+                <div class="result-content">
+                    <div class="wuxing-badge" id="wuxingBadge">-</div>
+                    <p>五行强弱：<span id="wuxingStrength">-</span></p>
+                </div>
+            </div>
+
+            <div class="result-section">
+                <div class="result-title">性格特征</div>
+                <div class="result-content" id="personalityResult">
+                    加载中...
+                </div>
+            </div>
+
+            <div class="result-section">
+                <div class="result-title">事业建议</div>
+                <div class="result-content" id="careerResult">
+                    加载中...
+                </div>
+            </div>
+
+            <div class="result-section">
+                <div class="result-title">感情建议</div>
+                <div class="result-content" id="loveResult">
+                    加载中...
+                </div>
+            </div>
+
+            <div class="result-section">
+                <div class="result-title">财运建议</div>
+                <div class="result-content" id="wealthResult">
+                    加载中...
+                </div>
+            </div>
+
+            <div class="result-section">
+                <div class="result-title">🌟 你的天选城市</div>
+                <div class="result-content">
+                    <div class="city-highlight" id="cityResult">-</div>
+                    <p id="cityDescription"></p>
+                </div>
+            </div>
+
+            <button class="btn btn-secondary" onclick="resetTest()">重新测试</button>
+        </div>
+    </div>
+
+    <script>
+        // ==================== 全局变量 ====================
+        let currentQuestion = 0;
+        let answers = [];
+        let userBirthYear = '';
+        let userBirthMonth = '';
+        let userBirthDay = '';
+
+        // ==================== 验证码配置 ====================
+        // 固定验证码模式
+        // 修改密码时，只需修改下面的数字即可（如把 '5656' 改成 '8888'）
+        const FIXED_CODE = '3721';
+        
+        // 验证验证码
+        function validateAuthCode(code) {
+            // 固定密码验证
+            return FIXED_CODE === code.trim();
+        }
+
+        // ==================== 性格测试题目 ====================
+        const questions = [
+            {
+                question: "在一片森林里，你更想成为？",
+                options: [
+                    { text: "坚硬的岩石", wuxing: "金" },
+                    { text: "茂盛的大树", wuxing: "木" },
+                    { text: "流动的溪水", wuxing: "水" },
+                    { text: "温暖的阳光", wuxing: "火" },
+                    { text: "肥沃的泥土", wuxing: "土" }
+                ]
+            },
+            {
+                question: "面对困难时，你通常会？",
+                options: [
+                    { text: "冷静分析，寻找解决方案", wuxing: "金" },
+                    { text: "坚持不懈，永不放弃", wuxing: "木" },
+                    { text: "灵活变通，适应环境", wuxing: "水" },
+                    { text: "充满激情，勇敢面对", wuxing: "火" },
+                    { text: "稳重踏实，循序渐进", wuxing: "土" }
+                ]
+            },
+            {
+                question: "你更喜欢哪种天气？",
+                options: [
+                    { text: "晴朗干爽", wuxing: "金" },
+                    { text: "微风细雨", wuxing: "木" },
+                    { text: "阴天湿润", wuxing: "水" },
+                    { text: "阳光明媚", wuxing: "火" },
+                    { text: "多云凉爽", wuxing: "土" }
+                ]
+            },
+            {
+                question: "你的朋友圈里，你通常是？",
+                options: [
+                    { text: "有主见的领导者", wuxing: "金" },
+                    { text: "积极活跃的参与者", wuxing: "木" },
+                    { text: "善解人意的倾听者", wuxing: "水" },
+                    { text: "热情洋溢的感染者", wuxing: "火" },
+                    { text: "可靠稳重的支持者", wuxing: "土" }
+                ]
+            },
+            {
+                question: "做决定时，你更看重？",
+                options: [
+                    { text: "效率和结果", wuxing: "金" },
+                    { text: "成长和发展", wuxing: "木" },
+                    { text: "灵活和变通", wuxing: "水" },
+                    { text: "激情和动力", wuxing: "火" },
+                    { text: "稳定和可靠", wuxing: "土" }
+                ]
+            },
+            {
+                question: "你理想的工作环境是？",
+                options: [
+                    { text: "严谨有序，规则明确", wuxing: "金" },
+                    { text: "开放自由，充满活力", wuxing: "木" },
+                    { text: "灵活多变，富有创意", wuxing: "水" },
+                    { text: "热情竞争，挑战不断", wuxing: "火" },
+                    { text: "稳定舒适，节奏适中", wuxing: "土" }
+                ]
+            },
+            {
+                question: "面对失败，你会？",
+                options: [
+                    { text: "总结教训，改进方法", wuxing: "金" },
+                    { text: "积极学习，重新开始", wuxing: "木" },
+                    { text: "调整方向，寻找新路", wuxing: "水" },
+                    { text: "燃起斗志，再次挑战", wuxing: "火" },
+                    { text: "沉淀反思，积累经验", wuxing: "土" }
+                ]
+            },
+            {
+                question: "你更喜欢哪种颜色？",
+                options: [
+                    { text: "白色或银色", wuxing: "金" },
+                    { text: "绿色或青色", wuxing: "木" },
+                    { text: "蓝色或黑色", wuxing: "水" },
+                    { text: "红色或橙色", wuxing: "火" },
+                    { text: "黄色或棕色", wuxing: "土" }
+                ]
+            },
+            {
+                question: "周末你更愿意？",
+                options: [
+                    { text: "整理房间，规划下周", wuxing: "金" },
+                    { text: "户外活动，亲近自然", wuxing: "木" },
+                    { text: "宅家休息，看书观影", wuxing: "水" },
+                    { text: "聚会交友，热闹一场", wuxing: "火" },
+                    { text: "家人团聚，温馨时光", wuxing: "土" }
+                ]
+            },
+            {
+                question: "你如何看待金钱？",
+                options: [
+                    { text: "投资增值，理财有道", wuxing: "金" },
+                    { text: "开源节流，量入为出", wuxing: "木" },
+                    { text: "灵活运用，适时投资", wuxing: "水" },
+                    { text: "大胆投资，追求回报", wuxing: "火" },
+                    { text: "稳健储蓄，安全第一", wuxing: "土" }
+                ]
+            },
+            {
+                question: "你最欣赏的品质是？",
+                options: [
+                    { text: "果断坚毅", wuxing: "金" },
+                    { text: "仁爱包容", wuxing: "木" },
+                    { text: "智慧灵活", wuxing: "水" },
+                    { text: "热情勇敢", wuxing: "火" },
+                    { text: "忠诚可靠", wuxing: "土" }
+                ]
+            },
+            {
+                question: "你希望别人怎么评价你？",
+                options: [
+                    { text: "有能力、有魄力", wuxing: "金" },
+                    { text: "有爱心、有创意", wuxing: "木" },
+                    { text: "有智慧、有洞察力", wuxing: "水" },
+                    { text: "有激情、有感染力", wuxing: "火" },
+                    { text: "稳重可靠、值得信赖", wuxing: "土" }
+                ]
+            }
+        ];
+
+        // ==================== 五行匹配城市数据 ====================
+        const cityData = {
+            "金": {
+                cities: ["上海", "深圳"],
+                description: "这两座城市商业繁荣，机会众多，适合金命人追求事业成功和财富积累。"
+            },
+            "木": {
+                cities: ["杭州", "苏州"],
+                description: "这两座城市木气充盈，风景秀丽，适合木命人发展，创意和智慧得以充分发挥。"
+            },
+            "水": {
+                cities: ["成都", "重庆"],
+                description: "这两座城市水系发达，生活悠闲，适合水命人沉淀思考，智慧和创造力得以展现。"
+            },
+            "火": {
+                cities: ["北京", "西安"],
+                description: "这两座城市历史悠久，文化底蕴深厚，适合火命人发挥领导才能，追求事业辉煌。"
+            },
+            "土": {
+                cities: ["广州", "武汉"],
+                description: "这两座城市地处中原，交通便利，适合土命人稳步发展，事业和生活双丰收。"
+            }
+        };
+
+        // ==================== 五行性格建议数据 ====================
+        const wuxingAdvice = {
+            "金": {
+                personality: "你像一把锋利的宝剑，性格坚毅，有决断力。做事果断，追求完美，但有时过于严厉，不够灵活。",
+                career: "适合方向：金融、法律、管理、销售、制造业；避开方向：艺术、创意、教育",
+                love: "性格属性：重事业，理性但缺乏浪漫；优势：责任感强，能提供稳定生活；最佳婚配：木命人（柔中带刚）或土命人（互补稳定）",
+                wealth: "财源：正财运旺，靠专业技能赚钱；投资建议：稳健投资，保守理财"
+            },
+            "木": {
+                personality: "你像森林中的参天大树，生命力旺盛，坚韧不拔。有主见，能坚持，但有时过于固执，不够灵活。",
+                career: "适合方向：教育、文化、传媒、设计、医疗、园林、家具；避开方向：金融、房地产、重工业",
+                love: "性格属性：重感情，专一但缺乏浪漫；优势：责任心强，能托付终身；最佳婚配：火命人（温暖浪漫）或水命人（相生相旺）",
+                wealth: "财源：正财运旺，靠专业能力赚钱；投资建议：教育、健康、文化产业"
+            },
+            "水": {
+                personality: "你像流动的溪水，灵活多变，善于适应。智慧过人，洞察力强，但有时过于圆滑，缺乏原则。",
+                career: "适合方向：咨询、策划、研究、旅游、贸易、物流；避开方向：传统制造业、工程类",
+                love: "性格属性：善解人意，温柔体贴；优势：包容性强，善处理关系；最佳婚配：金命人（刚柔并济）或木命人（相生相助）",
+                wealth: "财源：偏财运旺，靠信息差赚钱；投资建议：新兴行业、科技领域"
+            },
+            "火": {
+                personality: "你像温暖的阳光，热情洋溢，充满活力。有激情，有感染力，但有时过于冲动，缺乏耐心。",
+                career: "适合方向：娱乐、媒体、销售、市场营销、IT、互联网；避开方向：会计、行政、稳定类工作",
+                love: "性格属性：热情浪漫，表达直接；优势：有感染力，让人心动；最佳婚配：土命人（稳重踏实）或金命人（互补平衡）",
+                wealth: "财源：偏财运旺，靠机会赚钱；投资建议：高风险高回报项目"
+            },
+            "土": {
+                personality: "你像肥沃的土地，稳重踏实，包容性强。做事认真，有耐心，但有时过于保守，缺乏创新。",
+                career: "适合方向：房地产、建筑、农业、物流、行政、人事；避开方向：创意、艺术、变化快速的行业",
+                love: "性格属性：稳重可靠，重视家庭；优势：能提供安全感，善经营家庭；最佳婚配：火命人（充满激情）或水命人（刚柔并济）",
+                wealth: "财源：正财运旺，靠积累赚钱；投资建议：不动产、长期投资"
+            }
+        };
+
+        // ==================== 天干地支五行计算 ====================
+        const tiangan = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"];
+        const dizhi = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"];
+        const tianganWuxing = ["木", "木", "火", "火", "土", "土", "金", "金", "水", "水"];
+        const dizhiWuxing = ["水", "土", "木", "木", "土", "火", "火", "土", "金", "金", "土", "水"];
+
+        function calculateNianzhu(year) {
+            const yearIndex = (year - 4) % 60;
+            const tianganIndex = yearIndex % 10;
+            const dizhiIndex = yearIndex % 12;
+            
+            return {
+                tiangan: tiangan[tianganIndex],
+                dizhi: dizhi[dizhiIndex],
+                tianganWuxing: tianganWuxing[tianganIndex],
+                dizhiWuxing: dizhiWuxing[dizhiIndex]
+            };
+        }
+
+        // ==================== 初始化日期选择器 ====================
+        function initDateSelectors() {
+            const yearSelect = document.getElementById('yearSelect');
+            const monthSelect = document.getElementById('monthSelect');
+            const daySelect = document.getElementById('daySelect');
+
+            // 年份：1970-2006
+            for (let i = 2006; i >= 1970; i--) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i + '年';
+                yearSelect.appendChild(option);
+            }
+
+            // 月份：1-12
+            for (let i = 1; i <= 12; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i + '月';
+                monthSelect.appendChild(option);
+            }
+
+            // 日期：1-31
+            for (let i = 1; i <= 31; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i + '日';
+                daySelect.appendChild(option);
+            }
+        }
+
+        // ==================== 初始化星星背景 ====================
+        function initStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 2 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // ==================== 开始测试 ====================
+        function startTest() {
+            const authCode = document.getElementById('authCode').value.trim();
+            const year = document.getElementById('yearSelect').value;
+            const month = document.getElementById('monthSelect').value;
+            const day = document.getElementById('daySelect').value;
+
+            // 验证码验证
+            if (!authCode) {
+                alert('请输入验证码！');
+                return;
+            }
+
+            if (!validateAuthCode(authCode)) {
+                alert('验证码错误，请重新输入！');
+                return;
+            }
+
+            // 生日验证
+            if (!year || !month || !day) {
+                alert('请选择完整的出生日期！');
+                return;
+            }
+
+            userBirthYear = year;
+            userBirthMonth = month;
+            userBirthDay = day;
+
+            // 显示测试页面
+            document.getElementById('page-home').classList.add('hidden');
+            document.getElementById('page-test').classList.remove('hidden');
+
+            // 开始答题
+            currentQuestion = 0;
+            answers = [];
+            showQuestion();
+        }
+
+        // ==================== 显示问题 ====================
+        function showQuestion() {
+            const question = questions[currentQuestion];
+            document.getElementById('questionNumber').textContent = `问题 ${currentQuestion + 1}/12`;
+            document.getElementById('questionText').textContent = question.question;
+
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+
+            question.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                optionDiv.textContent = option.text;
+                optionDiv.onclick = () => selectOption(index, option.wuxing);
+                optionsContainer.appendChild(optionDiv);
+            });
+
+            // 更新进度条
+            const progress = ((currentQuestion) / questions.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        // ==================== 选择选项 ====================
+        function selectOption(index, wuxing) {
+            answers.push(wuxing);
+            currentQuestion++;
+
+            if (currentQuestion < questions.length) {
+                showQuestion();
+            } else {
+                // 完成所有题目
+                showLoading();
+            }
+        }
+
+        // ==================== 显示加载页面 ====================
+        function showLoading() {
+            document.getElementById('page-test').classList.add('hidden');
+            document.getElementById('page-loading').style.display = 'block';
+
+            // 模拟分析过程
+            setTimeout(() => {
+                showResult();
+            }, 2000);
+        }
+
+        // ==================== 显示结果 ====================
+        function showResult() {
+            document.getElementById('page-loading').style.display = 'none';
+            document.getElementById('page-result').classList.remove('hidden');
+
+            // 计算年柱五行
+            const nianzhu = calculateNianzhu(parseInt(userBirthYear));
+            document.getElementById('resultDate').textContent = `${userBirthYear}年${userBirthMonth}月${userBirthDay}日`;
+            document.getElementById('nianzhu').textContent = nianzhu.tiangan + nianzhu.dizhi;
+            document.getElementById('niangan').textContent = nianzhu.tianganWuxing + '命';
+            document.getElementById('nianzhi').textContent = nianzhu.dizhiWuxing + '命';
+
+            // 统计答案中各五行的数量
+            const wuxingCount = { '金': 0, '木': 0, '水': 0, '火': 0, '土': 0 };
+            answers.forEach(wuxing => {
+                wuxingCount[wuxing]++;
+            });
+
+            // 找出最多的五行
+            let maxCount = 0;
+            let dominantWuxing = '木'; // 默认值
+            for (const wuxing in wuxingCount) {
+                if (wuxingCount[wuxing] > maxCount) {
+                    maxCount = wuxingCount[wuxing];
+                    dominantWuxing = wuxing;
+                }
+            }
+
+            // 计算五行强度
+            const strength = Math.round((maxCount / 12) * 100);
+            let strengthText = '弱';
+            if (strength >= 70) strengthText = '强';
+            else if (strength >= 50) strengthText = '中';
+
+            // 显示本命五行
+            document.getElementById('wuxingBadge').textContent = dominantWuxing + '命人';
+            document.getElementById('wuxingStrength').textContent = `${strengthText}（${strength}分）`;
+
+            // 显示性格、事业、感情、财运建议
+            const advice = wuxingAdvice[dominantWuxing];
+            document.getElementById('personalityResult').textContent = advice.personality;
+            document.getElementById('careerResult').innerHTML = `<strong>适合方向：</strong>${advice.career.split('；')[0]}<br><strong>避开方向：</strong>${advice.career.split('；')[1]}`;
+            document.getElementById('loveResult').innerHTML = advice.love.replace(/；/g, '<br>');
+            document.getElementById('wealthResult').innerHTML = advice.wealth.replace(/；/g, '<br>');
+
+            // 显示天选城市
+            const city = cityData[dominantWuxing];
+            document.getElementById('cityResult').textContent = city.cities.join('、');
+            document.getElementById('cityDescription').textContent = city.description;
+        }
+
+        // ==================== 重新测试 ====================
+        function resetTest() {
+            currentQuestion = 0;
+            answers = [];
+            
+            document.getElementById('page-result').classList.add('hidden');
+            document.getElementById('page-home').classList.remove('hidden');
+            
+            // 清空验证码
+            document.getElementById('authCode').value = '';
+        }
+
+        // ==================== 页面初始化 ====================
+        window.onload = function() {
+            initDateSelectors();
+            initStars();
+        };
+    </script>
+</body>
+</html>
